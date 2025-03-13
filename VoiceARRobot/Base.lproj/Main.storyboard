@@ -30,7 +30,7 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="sceneView" destination="ooU-uM-D51" id="rXU-eO-Iqo"/>
+                        <outlet property="arView" destination="ooU-uM-D51" id="aAE-wd-OSy"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SZV-WD-TEh" sceneMemberID="firstResponder"/>

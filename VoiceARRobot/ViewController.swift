@@ -98,9 +98,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         case .left:
             let rotateToAngle = simd_quatf(angle: GLKMathDegreesToRadians(90), axis: SIMD3(x: 0, y: 1, z: 0))
             robotEntity?.setOrientation(rotateToAngle, relativeTo: robotEntity)
+            
+            // Animation
+            walkAnimation(movementDuration)
         case .right:
             let rotateToAngle = simd_quatf(angle: GLKMathDegreesToRadians(-90), axis: SIMD3(x: 0, y: 1, z: 0))
             robotEntity?.setOrientation(rotateToAngle, relativeTo: robotEntity)
+            
+            // Animation
+            walkAnimation(movementDuration)
         }
     }
     
