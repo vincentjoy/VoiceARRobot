@@ -16,7 +16,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     private var robotEntity: Entity?
     private var objectAnchor: AnchorEntity?
-    private var moveToLocation: Transform?
+    private var moveToLocation = Transform()
     private var movementDuration: Double = 5 // seconds
     
     // Speech recognition
@@ -74,8 +74,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             // Place that 3D model at the plane
             placeObject(object: robotEntity!, at: worldPosition)
             
-            // Start Moving
-            move(direction: .forward)
+            // Start speech recognition
+            startSpeechRecogonition()
         }
     }
     
@@ -95,15 +95,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         switch direction {
         case .forward:
             // Move
-            moveToLocation?.translation = robotEntity!.transform.translation + simd_float3(x:0, y:0, z: 20) // Take the robot's current location and move it to 20 centimeters, to move forward
-            robotEntity?.move(to: moveToLocation!, relativeTo: robotEntity, duration: movementDuration)
+            moveToLocation.translation = robotEntity!.transform.translation + simd_float3(x:0, y:0, z: 20) // Take the robot's current location and move it to 20 centimeters, to move forward
+            robotEntity?.move(to: moveToLocation, relativeTo: robotEntity, duration: movementDuration)
             
             // Animation
             walkAnimation(movementDuration)
         case .back:
             // Move
-            moveToLocation?.translation = robotEntity!.transform.translation + simd_float3(x:0, y:0, z: -20) // Take the robot's current location and move it to -20 centimeters, to move backward
-            robotEntity?.move(to: moveToLocation!, relativeTo: robotEntity, duration: movementDuration)
+            moveToLocation.translation = robotEntity!.transform.translation + simd_float3(x:0, y:0, z: -20) // Take the robot's current location and move it to -20 centimeters, to move backward
+            robotEntity?.move(to: moveToLocation, relativeTo: robotEntity, duration: movementDuration)
             
             // Animation
             walkAnimation(movementDuration)
@@ -193,8 +193,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         var flag = true
         speechTask = speechREcognizer.recognitionTask(with: speechRequest, resultHandler: { [weak self] (result, error) in
             guard let result, let self, flag else { return }
-            let recognizedText = result.bestTranscription.formattedString
-            if let direction = Directions(rawValue: recognizedText) {
+            let recognizedText = result.bestTranscription.segments.last
+            if let direction = Directions(rawValue: recognizedText!.substring) {
                 self.move(direction: direction)
                 flag = false
             }
