@@ -8,6 +8,7 @@
 import UIKit
 import RealityKit
 import ARKit
+import Speech
 
 class ViewController: UIViewController, ARSCNViewDelegate {
     
@@ -17,6 +18,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     private var objectAnchor: AnchorEntity?
     private var moveToLocation: Transform?
     private var movementDuration: Double = 5 // seconds
+    
+    // Speech recognition
+    let speechREcognizer: SFSpeechRecognizer? = SFSpeechRecognizer() // Object to check availability of speech recognition
+    let speechRequest = SFSpeechAudioBufferRecognitionRequest() // Transcribe live audio to text
+    var speechTask: SFSpeechRecognitionTask? // This task will monitor our recogonition, when our task has started and ended
+    
+    // Audion recognition
+    let audioEngine = AVAudioEngine()
+    let audioSession = AVAudioSession.sharedInstance()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,6 +39,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Tap detector
         arView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(recognizer:))))
+        
+        // Start speech recognition
     }
     
     private func startARSession() {
@@ -118,6 +130,75 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         } else {
             print("No animation present in the USDZ file")
         }
+    }
+    
+    private func startSpeechRecogonition() {
+        // Ask permission
+        requestPermission()
+        
+        // Audion record
+        startAudionRecording()
+        
+        // Speech recognition
+        speechRecognise()
+    }
+    
+    private func requestPermission() {
+        SFSpeechRecognizer.requestAuthorization { authorisationStatus in
+            switch authorisationStatus {
+            case .authorized:
+                print("Authorised")
+            case .denied:
+                print("Denied")
+            case .notDetermined:
+                print("Not Determined")
+            case .restricted:
+                print("Restricted")
+            @unknown default:
+                print("Unknown")
+            }
+        }
+    }
+    
+    private func startAudionRecording() {
+        
+        // Input node
+        let node = audioEngine.inputNode
+        let recordingFormat = node.outputFormat(forBus: 0)
+        node.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat, block: { [weak self] (buffer, _) in
+            // Pass the audio samples to speech recognition
+            self?.speechRequest.append(buffer)
+        })
+        
+        // Audio engine start
+        do {
+            try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+            
+            audioEngine.prepare()
+            try audioEngine.start()
+        } catch {
+            print(error)
+        }
+    }
+    
+    private func speechRecognise() {
+        // Check for availabiity
+        guard let speechREcognizer, speechREcognizer.isAvailable else {
+            print("Speech recognizer is not available")
+            return
+        }
+        
+        // Task - recognise text
+        var flag = true
+        speechTask = speechREcognizer.recognitionTask(with: speechRequest, resultHandler: { [weak self] (result, error) in
+            guard let result, let self, flag else { return }
+            let recognizedText = result.bestTranscription.formattedString
+            if let direction = Directions(rawValue: recognizedText) {
+                self.move(direction: direction)
+                flag = false
+            }
+        })
     }
 }
 

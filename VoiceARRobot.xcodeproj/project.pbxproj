@@ -254,6 +254,8 @@
 				DEVELOPMENT_TEAM = BMZMVWGL7D;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "For controlling the robot";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "For controlling the robot";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -284,6 +286,8 @@
 				DEVELOPMENT_TEAM = BMZMVWGL7D;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "For controlling the robot";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "For controlling the robot";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
