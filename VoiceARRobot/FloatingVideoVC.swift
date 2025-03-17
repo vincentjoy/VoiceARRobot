@@ -1,29 +1,37 @@
-//
-//  FloatingVideoVC.swift
-//  VoiceARRobot
-//
-//  Created by Vincent Joy on 17/03/25.
-//
-
 import UIKit
+import RealityKit
+import ARKit
 
-class FloatingVideoVC: UIViewController {
+class FloatingVideoVC: UIViewController, ARSessionDelegate {
+    
+    @IBOutlet var arView: ARView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        
+        // Starting image tracking
+        startImageTracking()
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    private func startImageTracking() {
+        
+        // Images to track
+        guard let imageToTrack = ARReferenceImage.referenceImages(inGroupNamed: "Pics", bundle: Bundle.main) else { return }
+        
+        // Configure image tracking
+        let configuration = ARImageTrackingConfiguration()
+        configuration.trackingImages = imageToTrack
+        configuration.maximumNumberOfTrackedImages = 1
+        
+        // Start session
+        arView.session.run(configuration)
     }
-    */
-
+    
+    func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
+        for anchor in anchors {
+            if let imageAnchor = anchor as? ARImageAnchor {
+                // Place video on image anchor
+            }
+        }
+    }
 }
