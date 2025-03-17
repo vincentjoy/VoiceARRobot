@@ -12,6 +12,8 @@ class FloatingVideoVC: UIViewController, ARSessionDelegate {
         
         // Starting image tracking
         startImageTracking()
+        
+        arView.session.delegate = self
     }
     
     private func startImageTracking() {
@@ -38,14 +40,34 @@ class FloatingVideoVC: UIViewController, ARSessionDelegate {
                                                     height: height)
                 
                 // Place that screen on to image anchor
-                
+                placeVideoScreen(videoEntity: videoScreen, imageAnchor: imageAnchor)
             }
         }
     }
     
+    // MARK: - Object placement
+    private func placeVideoScreen(videoEntity: ModelEntity, imageAnchor: ARImageAnchor) {
+        // Anchor entity
+        let imageAnchorEntity = AnchorEntity(anchor: imageAnchor)
+        
+        // Rotate 90 degrees in X axis
+        let rotationAngle = simd_quatf(angle: GLKMathDegreesToRadians(-90), axis: SIMD3(x: 1, y: 0, z: 0))
+        videoEntity.setOrientation(rotationAngle, relativeTo: imageAnchorEntity)
+        
+        // Postion the video screen to the side of the image
+        let bookWidth = Float(imageAnchor.referenceImage.physicalSize.width)
+        videoEntity.setPosition(SIMD3(x: bookWidth, y: 0, z: 0), relativeTo: imageAnchorEntity)
+        
+        // Attach model to anchor
+        imageAnchorEntity.addChild(videoEntity)
+        
+        // Add anchor to scene
+        arView.scene.addAnchor(imageAnchorEntity)
+    }
+    
     // MARK: - Video Screen
     
-    func createVideoScreen(width: Float, height: Float) -> ModelEntity {
+    private func createVideoScreen(width: Float, height: Float) -> ModelEntity {
         // Mesh
         let screenMesh = MeshResource.generatePlane(width: width, height: height)
         
@@ -59,7 +81,7 @@ class FloatingVideoVC: UIViewController, ARSessionDelegate {
         return videoScreenEntity
     }
     
-    func createVideoItem(with fileName: String) -> AVPlayerItem? {
+    private func createVideoItem(with fileName: String) -> AVPlayerItem? {
         // URL
         guard let url = Bundle.main.url(forResource: fileName, withExtension: ".mp4") else {
             return nil
@@ -72,7 +94,7 @@ class FloatingVideoVC: UIViewController, ARSessionDelegate {
         return videoItem
     }
     
-    func createVideoMaterial(with videoItem: AVPlayerItem) -> VideoMaterial {
+    private func createVideoMaterial(with videoItem: AVPlayerItem) -> VideoMaterial {
         // Video player
         let player = AVPlayer()
         
